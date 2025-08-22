@@ -1,0 +1,207 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const CourseDashboardApp());
+}
+
+class CourseDashboardApp extends StatelessWidget {
+  const CourseDashboardApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Course Dashboard',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+      ),
+      home: const DashboardScreen(),
+    );
+  }
+}
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _selectedIndex = 0;
+  double _buttonScale = 1.0;
+  String? _selectedCategory = 'Science';
+  final List<String> _courseCategories = ['Science', 'Arts', 'Technology'];
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text('Home', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+    CourseListView(),
+    Text('Profile', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Future<void> _showExitDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Exit'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to exit the app?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Add code to exit the app if needed, e.g., SystemNavigator.pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Course Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _showExitDialog,
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _widgetOptions.elementAt(_selectedIndex),
+              const SizedBox(height: 30),
+
+              // d. Animated Action Button
+              GestureDetector(
+                onTapDown: (_) => setState(() => _buttonScale = 1.2),
+                onTapUp: (_) => setState(() => _buttonScale = 1.0),
+                onTapCancel: () => setState(() => _buttonScale = 1.0),
+                child: AnimatedScale(
+                  scale: _buttonScale,
+                  duration: const Duration(milliseconds: 200),
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    child: const Text('Enroll in a course', style: TextStyle(fontSize: 16)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // e. Course Selection Dropdown
+              DropdownButton<String>(
+                value: _selectedCategory,
+                hint: const Text('Select a category'),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCategory = newValue;
+                  });
+                },
+                items: _courseCategories.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+              if (_selectedCategory != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    'Selected Category: $_selectedCategory',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: 'Courses',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
+
+class CourseListView extends StatelessWidget {
+  const CourseListView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final courses = [
+      {'name': 'Introduction to Flutter', 'instructor': 'Dr. Smith', 'icon': Icons.phone_android},
+      {'name': 'Advanced Dart', 'instructor': 'Prof. Jones', 'icon': Icons.code},
+      {'name': 'Mobile UI/UX Design', 'instructor': 'Ms. Williams', 'icon': Icons.design_services},
+      {'name': 'Firebase for Mobile', 'instructor': 'Dr. Brown', 'icon': Icons.cloud},
+      {'name': 'State Management in Flutter', 'instructor': 'Mr. Davis', 'icon': Icons.sync},
+    ];
+
+    return Expanded(
+      child: ListView.builder(
+        itemCount: courses.length,
+        itemBuilder: (context, index) {
+          final course = courses[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ListTile(
+              leading: Icon(course['icon'] as IconData, color: Colors.teal),
+              title: Text(course['name'] as String),
+              subtitle: Text(course['instructor'] as String),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                // Action on course tap
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
